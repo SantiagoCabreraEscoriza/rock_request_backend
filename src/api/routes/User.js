@@ -12,9 +12,11 @@ usersRouter.get(
 usersRouter.get(
   "/login/google/callback",
   passport.authenticate("google", {
-    successRedirect: "/",
     failureRedirect: "/login",
-  })
+  }),
+  (req, res) => {
+    res.redirect("http://localhost:5173/prueba");
+  }
 );
 
 module.exports = usersRouter;
