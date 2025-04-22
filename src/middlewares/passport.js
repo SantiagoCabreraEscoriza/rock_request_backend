@@ -1,6 +1,7 @@
 const passport = require("passport");
 const GoogleStrategy = require("passport-google-oauth20").Strategy;
 const User = require("../api/models/User.js");
+const { ApiError } = require("./error_middleware.js");
 
 passport.use(
   new GoogleStrategy(
@@ -11,6 +12,8 @@ passport.use(
       scope: ["profile"],
     },
     async function verify(accessToken, refreshToken, profile, cb) {
+      if (!profile) throw new ApiError("profile not found", 400);
+      if (!cb) throw new ApiError("callback not found", 400);
       try {
         const user = await User.findOne({
           federated: {
@@ -38,8 +41,6 @@ passport.use(
         await newUser.save();
         return cb(null, newUser);
       } catch (err) {
-        console.log(err);
-
         return cb(err);
       }
     }
@@ -60,8 +61,6 @@ passport.deserializeUser(async (id, done) => {
 });
 
 const isAuth = (req, res, next) => {
-  console.log(req.isAuthenticated());
-  
   if (req.isAuthenticated()) {
     return next();
   }
