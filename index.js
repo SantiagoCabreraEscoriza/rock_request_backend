@@ -9,7 +9,7 @@ const passport = require("passport");
 const { isAuth } = require("./src/middlewares/passport");
 const cors = require("cors");
 
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 3001;
 const app = express();
 
 connectDb();
@@ -20,6 +20,10 @@ app.use(
     credentials: true,
   })
 );
+
+app.get("/api/v1/auth", (req, res, next) => {
+  return res.status(200).json("Holaaaaaa");
+});
 
 app.use(
   session({
@@ -35,10 +39,12 @@ app.use(passport.session());
 app.use(errorMiddleware);
 app.use("/api/v1/users", usersRouter);
 
-app.use("/api/v1/auth", isAuth, (req, res, next) => {
-  return res.status(200).json("Holaaaaaa");
-});
-
-app.listen(PORT, () => {
-  logger.info(`Server running on port ${PORT}`);
+const server = app.listen(PORT, () => {
+  try {
+    const address = server.address();
+    logger.info(address.port);
+    logger.info(`Server running on port ${PORT}`);
+  } catch (error) {
+    logger.error("El servidor no está corriendo");
+  }
 });
